@@ -1,6 +1,5 @@
 # Importar librerías necesarias
-import tensorflow as tf
-from tensorflow.keras.datasets import cifar10
+from keras.datasets import cifar10
 import numpy as np
 import matplotlib.pyplot as plt
 
