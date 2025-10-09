@@ -1,9 +1,8 @@
 # Importar librerías necesarias
-import tensorflow as tf
-from tensorflow import keras
-from keras.datasets import cifar10
 import numpy as np
 import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import cifar10
+from tensorflow.keras.utils import to_categorical
 
 # Cargar los datos
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -15,3 +14,4 @@ print("x_test shape:", x_test.shape)
 print("y_test shape:", y_test.shape)
 print("Tipo de x_train:", x_train.dtype)
 print("Tipo de y_train:", y_train.dtype)
+
