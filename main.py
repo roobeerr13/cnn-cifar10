@@ -1,4 +1,4 @@
-from importdataset import load_cifar10
+from import_dataset import load_cifar10
 from visualization import show_images_per_class, class_names
 from preprocessing import normalize_images, one_hot_encode_labels
 from utils import print_shape_and_dtype
