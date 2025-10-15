@@ -1,89 +1,64 @@
 import gradio as gr
-import numpy as np
-import os
-import pickle
 import matplotlib.pyplot as plt
+import numpy as np
+import io
 from tensorflow.keras.models import load_model
-from utils.preprocessing import normalize_images
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.utils import to_categorical
+
+# === Importar tus funciones existentes ===
+from data.import_dataset import load_cifar10
+from utils.preprocessing import normalize_images, one_hot_encode_labels
 from utils.visualization import class_names
+from modelo.modelo import crear_modelo
 
-# Cargar modelo si existe
-MODEL_PATH = "modelo_cifar10.h5"
-HISTORY_PATH = "history.pkl"
-if os.path.exists(MODEL_PATH):
-    modelo = load_model(MODEL_PATH)
-else:
-    modelo = None
+# === Variables globales ===
+MODEL_PATH = "modelos_guardados/cifar10_model.h5"
+modelo = None
+history = None
 
-def predict(img):
+
+# === Función para clasificar imágenes ===
+def predict_image(img):
+    global modelo
+
     if modelo is None:
-        return "Modelo no disponible. Entrena y guarda el modelo primero."
-    img_np = np.array(img).astype(np.float32)
-    img_pre = normalize_images(np.expand_dims(img_np, axis=0))
-    pred = modelo.predict(img_pre)[0]
-    top_idx = int(np.argmax(pred))
-    return {"label": class_names[top_idx], "probability": float(pred[top_idx])}
+        try:
+            modelo = load_model(MODEL_PATH)
+        except Exception:
+            return "⚠️ Entrena el modelo primero.", None
 
-def plot_history():
-    if not os.path.exists(HISTORY_PATH):
-        return None
-    with open(HISTORY_PATH, "rb") as f:
-        history = pickle.load(f)
+    img = img.resize((32, 32))
+    img_array = np.array(img) / 255.0
+    img_array = np.expand_dims(img_array, axis=0)
 
-    # Crear figura con loss y accuracy
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
-    # Loss
-    if 'loss' in history and 'val_loss' in history:
-        axes[0].plot(history['loss'], label='train_loss')
-        axes[0].plot(history['val_loss'], label='val_loss')
-        axes[0].set_title('Loss')
-        axes[0].set_xlabel('Epoch')
-        axes[0].set_ylabel('Loss')
-        axes[0].legend()
-    # Accuracy
-    if 'accuracy' in history and 'val_accuracy' in history:
-        axes[1].plot(history['accuracy'], label='train_acc')
-        axes[1].plot(history['val_accuracy'], label='val_acc')
-        axes[1].set_title('Accuracy')
-        axes[1].set_xlabel('Epoch')
-        axes[1].set_ylabel('Accuracy')
-        axes[1].legend()
+    preds = modelo.predict(img_array)
+    preds = preds[0]
 
-    plt.tight_layout()
-    return fig
+    # Convertir a dict: clase -> probabilidad
+    result = {class_names[i]: float(preds[i]) for i in range(len(class_names))}
 
-css = """
-body {background: #eaf6fb;}
-.gradio-container {font-family: 'Segoe UI', sans-serif; background: #ffffff;}
-h1, h2, h3 {color: #1565c0;}
-.section {background: #e3f2fd; border-radius: 8px; padding: 1em; margin-bottom: 1em;}
-footer {text-align:center; margin-top:2em; font-size:1.1em; color: #1565c0;}
-.label {font-weight: bold; color: #1565c0;}
-"""
+    return result
 
-with gr.Blocks(css=css) as demo:
-    gr.Markdown("<h1>Clasificador CIFAR-10</h1>")
-    gr.Markdown("<div class='section'><h2>Introducción</h2><p>Este proyecto utiliza una red neuronal convolucional profunda para clasificar imágenes del dataset CIFAR-10. El objetivo es alcanzar una precisión superior al 96% y ofrecer interpretabilidad mediante XAI.</p></div>")
-    gr.Markdown("<div class='section'><h2>Arquitectura del Modelo</h2><p>La arquitectura incluye varias capas Conv2D, BatchNormalization y Dropout para mejorar el rendimiento y evitar el sobreajuste. La última capa es softmax para clasificación multiclase.</p></div>")
-    gr.Markdown("<div class='section'><h2>Entrenamiento y Evaluación</h2><p>El modelo se entrena con aumento de datos y validación cruzada. Se evalúa en el conjunto de prueba para obtener la precisión final.</p></div>")
-    gr.Markdown("<div class='section'><h2>Performance</h2><p>Precisión final en test: <span class='label'>96.2%</span></p></div>")
-    gr.Markdown("<div class='section'><h2>XAI</h2><p>Para interpretar el modelo, se pueden mostrar mapas de activación o explicaciones locales usando técnicas como Grad-CAM.</p></div>")
-    gr.Markdown("<h3>Prueba el clasificador</h3>")
-    image = gr.Image(type="numpy", shape=(32,32,3), label="Sube una imagen CIFAR-10")
-    label = gr.JSON(label="Predicción")
+# === Interfaz Gradio ===
+with gr.Blocks(title="Clasificador CIFAR-10 con Gradio") as demo:
+    gr.Markdown("## 🧠 Clasificador CIFAR-10")
+    gr.Markdown("Entrena el modelo, visualiza las métricas y prueba tus imágenes.")
 
-    # Preparar figura del historial (si existe)
-    hist_fig = plot_history() if os.path.exists(HISTORY_PATH) else None
+    with gr.Tab("1️⃣ Entrenar modelo"):
+        epochs = gr.Slider(1, 30, value=10, step=1, label="Número de épocas")
+        train_btn = gr.Button("🚀 Entrenar modelo")
+        output_msg = gr.Textbox(label="Estado")
+        output_plot = gr.Image(label="Gráficas de entrenamiento")
 
-    with gr.Row():
-        with gr.Column():
-            image_in = image
-            btn = gr.Button("Predecir")
-        with gr.Column():
-            label_out = label
-            hist_out = gr.Plot(value=hist_fig, label="History (loss & accuracy)")
+        train_btn.click(train_model, inputs=epochs, outputs=[output_msg, output_plot])
 
-    btn.click(fn=predict, inputs=image_in, outputs=label_out)
-    gr.Markdown("<footer>Creadores: Marco Verdú y Roberto Jiménez &copy; 2025</footer>")
+    with gr.Tab("2️⃣ Clasificar imágenes"):
+        gr.Markdown("Sube una imagen y el modelo te dirá qué clase es y su porcentaje de precisión.")
+        image_input = gr.Image(type="pil", label="Sube una imagen")
+        output_label = gr.Label(num_top_classes=3, label="Predicción (Top 3)")
+        predict_btn = gr.Button("🔍 Clasificar imagen")
+
+        predict_btn.click(predict_image, inputs=image_input, outputs=output_label)
 
 demo.launch()
