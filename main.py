@@ -7,7 +7,7 @@ from modelo.training_model.train_model import train_full
 import os
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
-from gradio.web_app import predict_image
+from gradio_web.web_app import predict_image
 import numpy as np
 import pickle
 import os
@@ -79,10 +79,10 @@ else:
 
 # Lanzar la interfaz web de Gradio
 try:
-    from gradio.web_app import run_app
+    from gradio_web.web_app import run_app
 except Exception:
     # fallback si el paquete es ejecutado directamente
-    from gradio import web_app as web_app_module
+    from gradio_web import web_app as web_app_module
     run_app = getattr(web_app_module, 'run_app', None)
 
 if run_app is not None:
