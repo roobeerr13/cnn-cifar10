@@ -5,7 +5,9 @@ from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
 from modelo.training_model.train_model import train
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 import pickle
+import os
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
 
@@ -44,19 +46,42 @@ datagen = ImageDataGenerator(
     rotation_range=15,
     width_shift_range=0.1,
     height_shift_range=0.1,
-    horizontal_flip=True
+    horizontal_flip=True,
+    zoom_range=0.1,
+    shear_range=0.05
 )
 datagen.fit(x_train)
+# Ajustes para mejorar convergencia y generalización
+batch_size = 64
+epochs = 10
+
+# Callbacks: reducir LR, early stopping y guardar el mejor modelo
+checkpoint_path = "modelo_cifar10_best.h5"
+callbacks = [
+    ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1),
+    EarlyStopping(monitor='val_accuracy', patience=10, verbose=1, restore_best_weights=True),
+    ModelCheckpoint(checkpoint_path, monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
+]
 
 # Entrenamiento con aumento de datos
+steps_per_epoch = max(1, x_train.shape[0] // batch_size)
 history = modelo.fit(
-    datagen.flow(x_train, y_train_cat, batch_size=64),
-    epochs=50,
-    validation_data=(x_test, y_test_cat)
+    datagen.flow(x_train, y_train_cat, batch_size=batch_size),
+    epochs=epochs,
+    steps_per_epoch=steps_per_epoch,
+    validation_data=(x_test, y_test_cat),
+    callbacks=callbacks,
+    verbose=1
 )
 
-modelo.save("modelo_cifar10.h5")
+# Guardar el mejor modelo final y el historial
+best_model_path = checkpoint_path if os.path.exists(checkpoint_path) else "modelo_cifar10.h5"
+if os.path.exists(checkpoint_path):
+    modelo = crear_modelo(input_shape=(32, 32, 3), num_classes=10)
+    modelo.load_weights(checkpoint_path)
+    modelo.save("modelo_cifar10.h5")
+
 with open("history.pkl", "wb") as f:
     pickle.dump(history.history, f)
 
-print("Modelo guardado en 'modelo_cifar10.h5' y historial en 'history.pkl'.")
+print(f"Entrenamiento finalizado. Mejor modelo guardado en 'modelo_cifar10.h5' y historial en 'history.pkl'.")
