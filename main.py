@@ -3,9 +3,11 @@ from utils.visualization import show_images_per_class, class_names
 from utils.preprocessing import normalize_images, one_hot_encode_labels
 from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
-from modelo.training_model.train_model import train
+from modelo.training_model.train_model import train_model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
+from gradio.web_app import predict_image
+import numpy as np
 import pickle
 import os
 # Load dataset
