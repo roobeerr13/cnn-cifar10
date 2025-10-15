@@ -2,6 +2,7 @@ from import_dataset import load_cifar10
 from visualization import show_images_per_class, class_names
 from preprocessing import normalize_images, one_hot_encode_labels
 from utils import print_shape_and_dtype
+from modelo import crear_modelo
 
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
@@ -26,3 +27,7 @@ y_test_cat = one_hot_encode_labels(y_test)
 # Confirm image shape
 print("Image shape:", x_train[0].shape)
 print("In CNNs, shape is (32, 32, 3). In MLPs, images are flattened with .reshape(32*32*3).")
+
+# Crear y mostrar el modelo
+modelo = crear_modelo(input_shape=(32, 32, 3), num_classes=10)
+modelo.summary()
