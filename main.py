@@ -1,5 +1,5 @@
 from data.import_dataset import load_cifar10
-from utils.visualization import show_images_per_class, class_names
+from utils.visualization import class_names
 from utils.preprocessing import normalize_images, one_hot_encode_labels
 from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
@@ -20,8 +20,7 @@ print_shape_and_dtype("y_train", y_train)
 print_shape_and_dtype("x_test", x_test)
 print_shape_and_dtype("y_test", y_test)
 
-# Visualize images
-show_images_per_class(x_train, y_train, class_names)
+# (Removed) Visualization of training images to prevent opening 'figure1' on execution
 
 # Normalize images
 x_train = normalize_images(x_train)
@@ -77,3 +76,16 @@ if not os.path.exists(MODEL_PATH):
                          model_path=MODEL_PATH, history_path='history.pkl', checkpoint_path='modelo_cifar10_best.h5')
 else:
     print(f"Modelo encontrado en {MODEL_PATH}. No se reentrena.")
+
+# Lanzar la interfaz web de Gradio
+try:
+    from gradio.web_app import run_app
+except Exception:
+    # fallback si el paquete es ejecutado directamente
+    from gradio import web_app as web_app_module
+    run_app = getattr(web_app_module, 'run_app', None)
+
+if run_app is not None:
+    run_app()
+else:
+    print("No se pudo arrancar la interfaz de Gradio (run_app no encontrado).")
