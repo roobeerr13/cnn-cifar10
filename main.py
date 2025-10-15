@@ -3,7 +3,8 @@ from utils.visualization import show_images_per_class, class_names
 from utils.preprocessing import normalize_images, one_hot_encode_labels
 from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
-from modelo.training_model.train_model import train_model
+from modelo.training_model.train_model import train_full
+import os
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from gradio.web_app import predict_image
@@ -65,25 +66,14 @@ callbacks = [
     ModelCheckpoint(checkpoint_path, monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
 ]
 
-# Entrenamiento con aumento de datos
-steps_per_epoch = max(1, x_train.shape[0] // batch_size)
-history = modelo.fit(
-    datagen.flow(x_train, y_train_cat, batch_size=batch_size),
-    epochs=epochs,
-    steps_per_epoch=steps_per_epoch,
-    validation_data=(x_test, y_test_cat),
-    callbacks=callbacks,
-    verbose=1
-)
+MODEL_PATH = "modelo_cifar10.h5"
 
-# Guardar el mejor modelo final y el historial
-best_model_path = checkpoint_path if os.path.exists(checkpoint_path) else "modelo_cifar10.h5"
-if os.path.exists(checkpoint_path):
-    modelo = crear_modelo(input_shape=(32, 32, 3), num_classes=10)
-    modelo.load_weights(checkpoint_path)
-    modelo.save("modelo_cifar10.h5")
-
-with open("history.pkl", "wb") as f:
-    pickle.dump(history.history, f)
-
-print(f"Entrenamiento finalizado. Mejor modelo guardado en 'modelo_cifar10.h5' y historial en 'history.pkl'.")
+# Si no existe el modelo ya entrenado, entrenar y guardarlo; si existe, cargarlo
+if not os.path.exists(MODEL_PATH):
+    print("No se encontró modelo preentrenado. Iniciando entrenamiento...")
+    history = train_full(x_train, y_train_cat, x_test, y_test_cat,
+                         input_shape=(32, 32, 3), num_classes=10,
+                         batch_size=64, epochs=100,
+                         model_path=MODEL_PATH, history_path='history.pkl', checkpoint_path='modelo_cifar10_best.h5')
+else:
+    print(f"Modelo encontrado en {MODEL_PATH}. No se reentrena.")
