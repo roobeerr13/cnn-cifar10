@@ -1,8 +1,8 @@
 import gradio as gr
 import numpy as np
 from tensorflow.keras.models import load_model
-from preprocessing import normalize_images
-from visualization import class_names
+from utils.preprocessing import normalize_images
+from utils.visualization import class_names
 
 modelo = load_model("modelo_cifar10.h5")  # Guarda tu modelo tras entrenar
 
