@@ -4,6 +4,7 @@ from preprocessing import normalize_images, one_hot_encode_labels
 from utils import print_shape_and_dtype
 from modelo import crear_modelo
 from train_model import train_model
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
@@ -38,5 +39,18 @@ modelo.compile(
 )
 modelo.summary()
 
-# Train the model
-history = train_model(modelo, x_train, y_train_cat, epochs=10, validation_split=0.1)
+# Pre train
+datagen = ImageDataGenerator(
+    rotation_range=15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True
+)
+datagen.fit(x_train)
+
+# Entrenamiento con aumento de datos
+history = modelo.fit(
+    datagen.flow(x_train, y_train_cat, batch_size=64),
+    epochs=50,
+    validation_data=(x_test, y_test_cat)
+)
