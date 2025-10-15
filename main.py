@@ -3,6 +3,7 @@ from visualization import show_images_per_class, class_names
 from preprocessing import normalize_images, one_hot_encode_labels
 from utils import print_shape_and_dtype
 from modelo import crear_modelo
+from train_model import train_model
 
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
@@ -30,4 +31,12 @@ print("In CNNs, shape is (32, 32, 3). In MLPs, images are flattened with .reshap
 
 # Crear y mostrar el modelo
 modelo = crear_modelo(input_shape=(32, 32, 3), num_classes=10)
+modelo.compile(
+    optimizer='adam',
+    loss='categorical_crossentropy',
+    metrics=['accuracy']
+)
 modelo.summary()
+
+# Train the model
+history = train_model(modelo, x_train, y_train_cat, epochs=10, validation_split=0.1)

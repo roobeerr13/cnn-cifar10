@@ -17,7 +17,3 @@ def crear_modelo(input_shape=(64, 64, 3), num_classes=10):
 
     return model
 
-
-if __name__ == "__main__":
-    modelo = crear_modelo()
-    modelo.summary()  # Muestra la arquitectura del modelo
