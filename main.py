@@ -2,8 +2,8 @@ from data.import_dataset import load_cifar10
 from utils.visualization import show_images_per_class, class_names
 from utils.preprocessing import normalize_images, one_hot_encode_labels
 from utils.utils import print_shape_and_dtype
-from gradio.modelo.modelo import crear_modelo
-from train_model import train_model
+from modelo.modelo import crear_modelo
+from modelo.training_model.train_model import train
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 # Load dataset

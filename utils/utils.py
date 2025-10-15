@@ -1,4 +1,4 @@
-# Utility functions for CIFAR-10 project
+# Utility functions 
 
 def print_shape_and_dtype(name, arr):
     """
