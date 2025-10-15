@@ -1,19 +1,26 @@
 import tensorflow as tf
 from tensorflow.keras import layers, models
 
-def crear_modelo(input_shape=(64, 64, 3), num_classes=10):
+def crear_modelo(input_shape=(32, 32, 3), num_classes=10):
     model = models.Sequential([
+        layers.Conv2D(64, (3, 3), activation='relu', padding='same', input_shape=input_shape),
+        layers.BatchNormalization(),
+        layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.3),
 
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D(pool_size=(2, 2)),
-
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D(pool_size=(2, 2)),
+        layers.Conv2D(128, (3, 3), activation='relu', padding='same'),
+        layers.BatchNormalization(),
+        layers.Conv2D(128, (3, 3), activation='relu', padding='same'),
+        layers.BatchNormalization(),
+        layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.4),
 
         layers.Flatten(),
-        layers.Dense(64, activation='relu'),
+        layers.Dense(256, activation='relu'),
+        layers.BatchNormalization(),
+        layers.Dropout(0.5),
         layers.Dense(num_classes, activation='softmax')
     ])
-
     return model
-
