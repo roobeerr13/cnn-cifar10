@@ -51,6 +51,6 @@ datagen.fit(x_train)
 # Entrenamiento con aumento de datos
 history = modelo.fit(
     datagen.flow(x_train, y_train_cat, batch_size=64),
-    epochs=50,
+    epochs=10,
     validation_data=(x_test, y_test_cat)
 )
