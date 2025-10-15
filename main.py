@@ -5,7 +5,7 @@ from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
 from modelo.training_model.train_model import train
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
+import pickle
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
 
@@ -54,3 +54,9 @@ history = modelo.fit(
     epochs=50,
     validation_data=(x_test, y_test_cat)
 )
+
+modelo.save("modelo_cifar10.h5")
+with open("history.pkl", "wb") as f:
+    pickle.dump(history.history, f)
+
+print("Modelo guardado en 'modelo_cifar10.h5' y historial en 'history.pkl'.")
