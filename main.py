@@ -1,3 +1,4 @@
+
 from data.import_dataset import load_cifar10
 from utils.visualization import class_names
 from utils.preprocessing import normalize_images, one_hot_encode_labels
@@ -5,6 +6,7 @@ from utils.utils import print_shape_and_dtype
 from modelo.modelo import crear_modelo
 from modelo.training_model.train_model import train_full
 import os
+import base64
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 from flask import Flask, render_template, request, jsonify
@@ -146,6 +148,24 @@ def history():
         if isinstance(history_data[key], list) and len(history_data[key]) > 0 and isinstance(history_data[key][0], np.float32):
              history_data[key] = [float(x) for x in history_data[key]]
     return jsonify(history_data)
+
+
+def get_dataset_subset(num_images=10):
+    indices = np.random.choice(len(x_test), num_images, replace=False)
+    images = []
+    labels = []
+    for i in indices:
+        img = Image.fromarray((x_test[i] * 255).astype(np.uint8))
+        buffer = io.BytesIO()
+        img.save(buffer, format="PNG")
+        img_str = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        images.append(img_str)
+        labels.append(class_names[y_test[i][0]])
+    return {"images": images, "labels": labels}
+
+@app.route('/dataset_subset')
+def dataset_subset():
+    return jsonify(get_dataset_subset())
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))
