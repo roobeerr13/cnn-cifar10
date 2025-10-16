@@ -1,50 +1,69 @@
-# cnn-cifar10
+# Clasificador de Imágenes CIFAR-10 con CNN y Flask
 
-# Clasificador CIFAR-10 con CNN
-
-Proyecto de Marco Verdú y Roberto Jiménez
+**Proyecto de Marco Verdú y Roberto Jiménez**
 
 ## Descripción
 
-Este proyecto entrena una red neuronal convolucional profunda para clasificar imágenes del dataset CIFAR-10, alcanzando una precisión superior al 96%. Incluye una interfaz web interactiva con Gradio y un diseño personalizado.
+Este proyecto desarrolla e implementa una Red Neuronal Convolucional (CNN) para clasificar imágenes del conocido dataset CIFAR-10. El modelo se entrena desde cero y, una vez guardado, se integra con una aplicación web interactiva construida con Flask.
 
-## Estructura
+La aplicación web permite a los usuarios subir sus propias imágenes para clasificarlas en tiempo real y visualiza de forma dinámica el historial de entrenamiento del modelo (precisión y pérdida) a través de gráficos interactivos con una estética de neón.
 
-- `main.py`: Flujo principal de entrenamiento y evaluación.
-- `modelo.py`: Arquitectura de la CNN.
-- `train_model.py`: Función para entrenar el modelo.
-- `web_app.py`: Interfaz web con Gradio.
-- `preprocessing.py`, `visualization.py`, `utils.py`: Funciones auxiliares.
+## Estructura del Proyecto
 
-## Uso
+El repositorio está organizado de la siguiente manera:
 
-1. **Entrenamiento**
-   ```bash
-   python main.py
-   ```
-   El modelo se guarda como `modelo_cifar10.h5`.
+- `main.py`: Script principal que se encarga de entrenar el modelo (si no existe un modelo pre-entrenado), evaluar su rendimiento final y lanzar la aplicación web Flask.
+- `reporte.md`: Archivo autogenerado que documenta la precisión y pérdida finales del modelo en el conjunto de prueba.
+- `modelo_cifar10.h5`: El modelo de Keras pre-entrenado y guardado.
+- `history.pkl`: Archivo que almacena las métricas de entrenamiento (precisión y pérdida) por época.
 
-2. **Interfaz web**
-   ```bash
-   python web_app.py
-   ```
-   Accede a la web local para probar el clasificador.
+- **`data/`**: Contiene la lógica para cargar el dataset CIFAR-10.
+- **`modelo/`**: Define la arquitectura de la red neuronal (`modelo.py`) y la lógica de entrenamiento (`training_model/train_model.py`).
+- **`utils/`**: Incluye funciones auxiliares para preprocesamiento de imágenes, visualización y otras utilidades.
+- **`flask_web/`**: Contiene todos los archivos relacionados con la interfaz web de Flask.
+  - `templates/index.html`: Estructura HTML de la página principal.
+  - `static/style.css`: Estilos CSS para la apariencia de la web (tema neón).
+  - `static/script.js`: Código JavaScript para la interactividad del cliente (carga de imágenes, predicciones y gráficos).
+
+## Instalación y Uso
+
+Sigue estos pasos para poner en marcha el proyecto:
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone <URL-DEL-REPOSITORIO>
+    cd cnn-cifar10
+    ```
+
+2.  **Crear un entorno virtual e instalar dependencias:**
+    Se recomienda utilizar un entorno virtual para gestionar las dependencias del proyecto.
+    ```bash
+    python -m venv .venv
+    source .venv/bin/activate  # En Windows: .venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+    *(Nota: Asegúrate de tener un archivo `requirements.txt` con todas las librerías necesarias).* 
+
+3.  **Ejecutar la aplicación:**
+    El siguiente comando iniciará el proceso. Si no encuentra un archivo `modelo_cifar10.h5`, comenzará el entrenamiento del modelo. Una vez finalizado (o si el modelo ya existía), lanzará el servidor web de Flask.
+    ```bash
+    python main.py
+    ```
+
+4.  **Acceder a la interfaz web:**
+    Abre tu navegador y visita la dirección `http://127.0.0.1:8080` (o el puerto que se indique en la terminal) para interactuar con el clasificador.
 
 ## Requisitos
 
-- Python 3.8+
-- TensorFlow
-- Gradio
-- Matplotlib
-- Numpy
+Las principales librerías utilizadas en este proyecto son:
 
-Instala dependencias:
-```bash
-pip install tensorflow gradio matplotlib numpy
-```
+- `tensorflow`
+- `flask`
+- `numpy`
+- `Pillow` (PIL)
 
-## Créditos
+Un listado completo se encuentra en el archivo `requirements.txt`.
 
-Creadores: **Marco Verdú** y **Roberto Jiménez**
+## Resultados
 
----
+El rendimiento final del modelo (precisión y pérdida) sobre el conjunto de datos de prueba se calcula automáticamente al ejecutar `main.py` y se documenta en el archivo `reporte.md`.
