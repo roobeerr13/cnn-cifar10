@@ -82,6 +82,10 @@ else:
 def index():
     return render_template('index.html')
 
+@app.route('/charts')
+def charts():
+    return render_template('charts.html')
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if 'file' not in request.files:
@@ -112,6 +116,10 @@ def predict():
 def history():
     with open('history.pkl', 'rb') as f:
         history_data = pickle.load(f)
+    # Convert numpy arrays to lists
+    for key, value in history_data.items():
+        if isinstance(value, np.ndarray):
+            history_data[key] = value.tolist()
     return jsonify(history_data)
 
 if __name__ == '__main__':
