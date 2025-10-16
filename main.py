@@ -11,6 +11,7 @@ from flask import Flask, render_template, request, jsonify
 import numpy as np
 from PIL import Image
 import io
+import pickle
 from tensorflow.keras.models import load_model
 
 # Initialize Flask app
@@ -106,6 +107,12 @@ def predict():
             return jsonify(result)
         except Exception as e:
             return jsonify({'error': str(e)})
+
+@app.route('/history')
+def history():
+    with open('history.pkl', 'rb') as f:
+        history_data = pickle.load(f)
+    return jsonify(history_data)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8080))

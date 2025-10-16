@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clasificador de Imágenes</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
@@ -20,6 +21,10 @@
         <div class="results-container">
             <h2>Resultados</h2>
             <div id="results"></div>
+        </div>
+        <div class="chart-container">
+            <canvas id="accuracy-chart"></canvas>
+            <canvas id="loss-chart"></canvas>
         </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>

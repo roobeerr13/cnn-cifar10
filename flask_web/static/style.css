@@ -1,6 +1,8 @@
+
 body {
     font-family: sans-serif;
-    background-color: #f0f2f5;
+    background-color: #121212;
+    color: #e0e0e0;
     margin: 0;
     padding: 0;
     display: flex;
@@ -10,11 +12,12 @@ body {
 }
 
 .container {
-    background-color: #fff;
+    background-color: #1e1e1e;
     padding: 2rem;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
     text-align: center;
+    border: 1px solid #0d47a1;
 }
 
 .upload-container {
@@ -26,7 +29,7 @@ body {
 }
 
 .file-label {
-    background-color: #007bff;
+    background-color: #0d47a1;
     color: #fff;
     padding: 0.5rem 1rem;
     border-radius: 4px;
@@ -36,7 +39,7 @@ body {
 .preview-container {
     margin-bottom: 1rem;
     min-height: 200px;
-    border: 1px solid #ddd;
+    border: 1px solid #0d47a1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,7 +52,7 @@ body {
 }
 
 #predict-button {
-    background-color: #28a745;
+    background-color: #1565c0;
     color: #fff;
     padding: 0.5rem 1rem;
     border: none;
@@ -64,4 +67,15 @@ body {
 
 #results {
     margin-top: 0.5rem;
+}
+
+.chart-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: space-around;
+}
+
+canvas {
+    max-width: 400px;
+    max-height: 300px;
 }
