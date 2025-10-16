@@ -66,6 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const chartOptions = {
             responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
             plugins: {
                 title: {
                     display: true,
@@ -79,19 +83,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         color: '#e0e0e0'
                     }
                 },
+                tooltip: {
+                    enabled: true,
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    titleColor: '#00e5ff',
+                    bodyColor: '#e0e0e0',
+                    borderColor: '#00e5ff',
+                    borderWidth: 1
+                },
                 zoom: {
                     pan: {
-                        enabled: true,
-                        mode: 'xy',
+                        enabled: false, // Disabled
                     },
                     zoom: {
                         wheel: {
-                            enabled: true,
+                            enabled: false, // Disabled
                         },
                         pinch: {
-                            enabled: true
+                            enabled: false, // Disabled
                         },
-                        mode: 'xy',
                     }
                 }
             },

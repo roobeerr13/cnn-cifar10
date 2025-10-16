@@ -78,6 +78,29 @@ else:
     print(f"Model found at {MODEL_PATH}. Loading model.")
     modelo = load_model(MODEL_PATH)
 
+# Evaluate the model on the test set and print the results
+loss, acc = modelo.evaluate(x_test, y_test_cat, verbose=0)
+print("\n----------------------------------------------------------")
+print(f"Precisión final del modelo en el conjunto de prueba: {acc:.2f}")
+print(f"Pérdida final del modelo en el conjunto de prueba: {loss:.2f}")
+print("----------------------------------------------------------\n")
+
+# Save results to a report file
+report_content = f'''
+# Reporte del Proyecto: Clasificador de Imágenes CIFAR-10
+
+## Resultados de la Evaluación del Modelo
+
+A continuación se presentan las métricas de rendimiento finales del modelo, evaluadas en el conjunto de datos de prueba.
+
+- **Precisión Final (Accuracy):** `{acc:.4f}`
+- **Pérdida Final (Loss):** `{loss:.4f}`
+
+Estos valores representan el rendimiento del modelo entrenado en datos no vistos, proporcionando una medida objetiva de su capacidad de generalización.
+'''
+with open("reporte.md", "w") as f:
+    f.write(report_content)
+
 @app.route('/')
 def index():
     return render_template('index.html')
