@@ -77,6 +77,12 @@ if not os.path.exists(MODEL_PATH):
 else:
     print(f"Model found at {MODEL_PATH}. Loading model.")
     modelo = load_model(MODEL_PATH)
+    # We need to re-compile the model after loading it
+    modelo.compile(
+        optimizer='adam',
+        loss='categorical_crossentropy',
+        metrics=['accuracy']
+    )
 
 # Evaluate the model on the test set and print the results
 loss, acc = modelo.evaluate(x_test, y_test_cat, verbose=0)
