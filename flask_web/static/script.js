@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             resultsContainer.innerHTML = '';
             if (data.error) {
-                resultsContainer.innerHTML = `<p style="color: red;">${data.error}</p>`;
+                resultsContainer.innerHTML = `<p style="color: #ff3b3b;">${data.error}</p>`;
             } else {
                 const sortedResults = Object.entries(data).sort((a, b) => b[1] - a[1]);
                 sortedResults.forEach(([className, probability]) => {
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Error:', error);
-            resultsContainer.innerHTML = `<p style="color: red;">Ocurrió un error al procesar la solicitud.</p>`;
+            resultsContainer.innerHTML = `<p style="color: #ff3b3b;">Ocurrió un error al procesar la solicitud.</p>`;
         });
     });
 
@@ -64,6 +64,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const epochs = Array.from({ length: history.accuracy.length }, (_, i) => i + 1);
 
+        const chartOptions = {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    font: {
+                        size: 18
+                    },
+                    color: '#00e5ff'
+                },
+                legend: {
+                    labels: {
+                        color: '#e0e0e0'
+                    }
+                },
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy',
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true,
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'xy',
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Época',
+                        color: '#00e5ff'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(0, 229, 255, 0.2)'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Valor',
+                        color: '#00e5ff'
+                    },
+                    ticks: {
+                        color: '#e0e0e0'
+                    },
+                    grid: {
+                        color: 'rgba(0, 229, 255, 0.2)'
+                    }
+                }
+            }
+        };
+
         new Chart(accuracyCtx, {
             type: 'line',
             data: {
@@ -72,40 +133,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     {
                         label: 'Precisión de Entrenamiento',
                         data: history.accuracy,
-                        borderColor: '#1e88e5',
-                        backgroundColor: 'rgba(30, 136, 229, 0.2)',
-                        fill: true
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#00e5ff',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#00e5ff'
                     },
                     {
                         label: 'Precisión de Validación',
                         data: history.val_accuracy,
-                        borderColor: '#f4511e',
-                        backgroundColor: 'rgba(244, 81, 30, 0.2)',
-                        fill: true
+                        borderColor: '#ff3b3b',
+                        backgroundColor: 'rgba(255, 59, 59, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ff3b3b',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#ff3b3b'
                     }
                 ]
             },
             options: {
-                responsive: true,
+                ...chartOptions,
                 plugins: {
+                    ...chartOptions.plugins,
                     title: {
-                        display: true,
+                        ...chartOptions.plugins.title,
                         text: 'Precisión del Modelo'
-                    },
-                    legend: {
-                        position: 'top',
                     }
                 },
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Época'
-                        }
-                    },
+                 scales: {
+                    ...chartOptions.scales,
                     y: {
+                        ...chartOptions.scales.y,
                         title: {
-                            display: true,
+                            ...chartOptions.scales.y.title,
                             text: 'Precisión'
                         }
                     }
@@ -121,40 +188,46 @@ document.addEventListener('DOMContentLoaded', () => {
                     {
                         label: 'Pérdida de Entrenamiento',
                         data: history.loss,
-                        borderColor: '#1e88e5',
-                        backgroundColor: 'rgba(30, 136, 229, 0.2)',
-                        fill: true
+                        borderColor: '#00e5ff',
+                        backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#00e5ff',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#00e5ff'
                     },
                     {
                         label: 'Pérdida de Validación',
                         data: history.val_loss,
-                        borderColor: '#f4511e',
-                        backgroundColor: 'rgba(244, 81, 30, 0.2)',
-                        fill: true
+                        borderColor: '#ff3b3b',
+                        backgroundColor: 'rgba(255, 59, 59, 0.2)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#ff3b3b',
+                        pointBorderColor: '#fff',
+                        pointHoverRadius: 7,
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#ff3b3b'
                     }
                 ]
             },
             options: {
-                responsive: true,
+                ...chartOptions,
                 plugins: {
+                    ...chartOptions.plugins,
                     title: {
-                        display: true,
+                        ...chartOptions.plugins.title,
                         text: 'Pérdida del Modelo'
-                    },
-                    legend: {
-                        position: 'top',
                     }
                 },
                 scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: 'Época'
-                        }
-                    },
+                    ...chartOptions.scales,
                     y: {
+                        ...chartOptions.scales.y,
                         title: {
-                            display: true,
+                            ...chartOptions.scales.y.title,
                             text: 'Pérdida'
                         }
                     }
