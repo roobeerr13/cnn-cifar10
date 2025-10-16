@@ -1,5 +1,5 @@
 # Clasificador de Imágenes CIFAR-10 con CNN y Flask
-
+https://github.com/roobeerr13/cnn-cifar10.git
 **Proyecto de Marco Verdú y Roberto Jiménez**
 
 ## Descripción
