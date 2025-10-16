@@ -2,6 +2,6 @@ tensorflow
 matplotlib
 numpy
 pandas
-keras 
-gradio
 scipy
+flask
+Pillow

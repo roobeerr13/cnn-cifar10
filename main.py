@@ -7,10 +7,15 @@ from modelo.training_model.train_model import train_full
 import os
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
-from gradio_web.web_app import predict_image
+from flask import Flask, render_template, request, jsonify
 import numpy as np
-import pickle
-import os
+from PIL import Image
+import io
+from tensorflow.keras.models import load_model
+
+# Initialize Flask app
+app = Flask(__name__, template_folder='flask_web/templates', static_folder='flask_web/static')
+
 # Load dataset
 x_train, y_train, x_test, y_test = load_cifar10()
 
@@ -19,8 +24,6 @@ print_shape_and_dtype("x_train", x_train)
 print_shape_and_dtype("y_train", y_train)
 print_shape_and_dtype("x_test", x_test)
 print_shape_and_dtype("y_test", y_test)
-
-# (Removed) Visualization of training images to prevent opening 'figure1' on execution
 
 # Normalize images
 x_train = normalize_images(x_train)
@@ -32,9 +35,8 @@ y_test_cat = one_hot_encode_labels(y_test)
 
 # Confirm image shape
 print("Image shape:", x_train[0].shape)
-print("In CNNs, shape is (32, 32, 3). In MLPs, images are flattened with .reshape(32*32*3).")
 
-# Crear y mostrar el modelo
+# Create and compile model
 modelo = crear_modelo(input_shape=(32, 32, 3), num_classes=10)
 modelo.compile(
     optimizer='adam',
@@ -43,7 +45,7 @@ modelo.compile(
 )
 modelo.summary()
 
-# Pre train
+# Data augmentation
 datagen = ImageDataGenerator(
     rotation_range=15,
     width_shift_range=0.1,
@@ -53,11 +55,8 @@ datagen = ImageDataGenerator(
     shear_range=0.05
 )
 datagen.fit(x_train)
-# Ajustes para mejorar convergencia y generalización
-batch_size = 64
-epochs = 10
 
-# Callbacks: reducir LR, early stopping y guardar el mejor modelo
+# Callbacks
 checkpoint_path = "modelo_cifar10_best.h5"
 callbacks = [
     ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=3, verbose=1),
@@ -67,25 +66,47 @@ callbacks = [
 
 MODEL_PATH = "modelo_cifar10.h5"
 
-# Si no existe el modelo ya entrenado, entrenar y guardarlo; si existe, cargarlo
+# Train or load model
 if not os.path.exists(MODEL_PATH):
-    print("No se encontró modelo preentrenado. Iniciando entrenamiento...")
+    print("No pre-trained model found. Starting training...")
     history = train_full(x_train, y_train_cat, x_test, y_test_cat,
                          input_shape=(32, 32, 3), num_classes=10,
                          batch_size=64, epochs=100,
                          model_path=MODEL_PATH, history_path='history.pkl', checkpoint_path='modelo_cifar10_best.h5')
 else:
-    print(f"Modelo encontrado en {MODEL_PATH}. No se reentrena.")
+    print(f"Model found at {MODEL_PATH}. Loading model.")
+    modelo = load_model(MODEL_PATH)
 
-# Lanzar la interfaz web de Gradio
-try:
-    from gradio_web.web_app import run_app
-except Exception:
-    # fallback si el paquete es ejecutado directamente
-    from gradio_web import web_app as web_app_module
-    run_app = getattr(web_app_module, 'run_app', None)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-if run_app is not None:
-    run_app()
-else:
-    print("No se pudo arrancar la interfaz de Gradio (run_app no encontrado).")
+@app.route('/predict', methods=['POST'])
+def predict():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file part'})
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
+
+    if file:
+        try:
+            img = Image.open(io.BytesIO(file.read())).convert('RGB')
+            img = img.resize((32, 32))
+            img_np = np.array(img).astype(np.float32)
+            
+            img_pre = normalize_images(np.expand_dims(img_np, axis=0))
+            
+            preds = modelo.predict(img_pre)[0]
+            
+            result = {class_names[i]: float(preds[i]) for i in range(len(class_names))}
+            
+            return jsonify(result)
+        except Exception as e:
+            return jsonify({'error': str(e)})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 8080))
+    app.run(host='0.0.0.0', port=port)
