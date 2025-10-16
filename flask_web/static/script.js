@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const previewImage = document.getElementById('preview-image');
     const predictButton = document.getElementById('predict-button');
     const resultsContainer = document.getElementById('results');
+    const datasetGrid = document.querySelector('.dataset-grid');
 
     fileInput.addEventListener('change', () => {
         const file = fileInput.files[0];
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(data => {
             resultsContainer.innerHTML = '';
             if (data.error) {
-                resultsContainer.innerHTML = `<p style="color: #ff3b3b;">${data.error}</p>`;
+                resultsContainer.innerHTML = `<p style="color: #ff3b30;">${data.error}</p>`;
             } else {
                 const sortedResults = Object.entries(data).sort((a, b) => b[1] - a[1]);
                 sortedResults.forEach(([className, probability]) => {
@@ -46,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(error => {
             console.error('Error:', error);
-            resultsContainer.innerHTML = `<p style="color: #ff3b3b;">Ocurrió un error al procesar la solicitud.</p>`;
+            resultsContainer.innerHTML = `<p style="color: #ff3b30;">Ocurrió un error al procesar la solicitud.</p>`;
         });
     });
 
@@ -57,6 +58,33 @@ document.addEventListener('DOMContentLoaded', () => {
             renderCharts(history);
         })
         .catch(error => console.error('Error fetching history:', error));
+
+    // Fetch dataset subset and display images
+    fetch('/dataset_subset')
+        .then(response => response.json())
+        .then(data => {
+            displayDataset(data);
+        })
+        .catch(error => console.error('Error fetching dataset subset:', error));
+
+    function displayDataset(data) {
+        datasetGrid.innerHTML = '';
+        data.images.forEach((img_str, index) => {
+            const item = document.createElement('div');
+            item.classList.add('dataset-item');
+
+            const img = document.createElement('img');
+            img.src = `data:image/png;base64,${img_str}`;
+            img.alt = data.labels[index];
+
+            const label = document.createElement('p');
+            label.textContent = data.labels[index];
+
+            item.appendChild(img);
+            item.appendChild(label);
+            datasetGrid.appendChild(item);
+        });
+    }
 
     function renderCharts(history) {
         const accuracyCtx = document.getElementById('accuracy-chart').getContext('2d');
@@ -76,11 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     font: {
                         size: 18
                     },
-                    color: '#00e5ff'
+                    color: '#1d1d1f'
                 },
                 legend: {
                     labels: {
-                        color: '#e0e0e0'
+                        color: '#1d1d1f'
                     }
                 },
                 tooltip: {
@@ -88,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     mode: 'index',
                     intersect: false,
                     backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: '#00e5ff',
-                    bodyColor: '#e0e0e0',
-                    borderColor: '#00e5ff',
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    borderColor: '#d1d1d6',
                     borderWidth: 1
                 },
                 zoom: {
@@ -112,26 +140,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     title: {
                         display: true,
                         text: 'Época',
-                        color: '#00e5ff'
+                        color: '#1d1d1f'
                     },
                     ticks: {
-                        color: '#e0e0e0'
+                        color: '#1d1d1f'
                     },
                     grid: {
-                        color: 'rgba(0, 229, 255, 0.2)'
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 },
                 y: {
                     title: {
                         display: true,
                         text: 'Valor',
-                        color: '#00e5ff'
+                        color: '#1d1d1f'
                     },
                     ticks: {
-                        color: '#e0e0e0'
+                        color: '#1d1d1f'
                     },
                     grid: {
-                        color: 'rgba(0, 229, 255, 0.2)'
+                        color: 'rgba(0, 0, 0, 0.1)'
                     }
                 }
             }
@@ -145,28 +173,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     {
                         label: 'Precisión de Entrenamiento',
                         data: history.accuracy,
-                        borderColor: '#00e5ff',
-                        backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                        borderColor: '#007aff',
+                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#00e5ff',
-                        pointBorderColor: '#fff',
+                        pointBackgroundColor: '#007aff',
+                        pointBorderColor: '#ffffff',
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#00e5ff'
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#007aff'
                     },
                     {
                         label: 'Precisión de Validación',
                         data: history.val_accuracy,
-                        borderColor: '#ff3b3b',
-                        backgroundColor: 'rgba(255, 59, 59, 0.2)',
+                        borderColor: '#ff3b30',
+                        backgroundColor: 'rgba(255, 59, 48, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#ff3b3b',
-                        pointBorderColor: '#fff',
+                        pointBackgroundColor: '#ff3b30',
+                        pointBorderColor: '#ffffff',
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#ff3b3b'
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#ff3b30'
                     }
                 ]
             },
@@ -200,28 +228,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     {
                         label: 'Pérdida de Entrenamiento',
                         data: history.loss,
-                        borderColor: '#00e5ff',
-                        backgroundColor: 'rgba(0, 229, 255, 0.2)',
+                        borderColor: '#007aff',
+                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#00e5ff',
-                        pointBorderColor: '#fff',
+                        pointBackgroundColor: '#007aff',
+                        pointBorderColor: '#ffffff',
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#00e5ff'
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#007aff'
                     },
                     {
                         label: 'Pérdida de Validación',
                         data: history.val_loss,
-                        borderColor: '#ff3b3b',
-                        backgroundColor: 'rgba(255, 59, 59, 0.2)',
+                        borderColor: '#ff3b30',
+                        backgroundColor: 'rgba(255, 59, 48, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#ff3b3b',
-                        pointBorderColor: '#fff',
+                        pointBackgroundColor: '#ff3b30',
+                        pointBorderColor: '#ffffff',
                         pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#fff',
-                        pointHoverBorderColor: '#ff3b3b'
+                        pointHoverBackgroundColor: '#ffffff',
+                        pointHoverBorderColor: '#ff3b30'
                     }
                 ]
             },
